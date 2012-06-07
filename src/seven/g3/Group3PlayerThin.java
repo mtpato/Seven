@@ -21,7 +21,7 @@ import seven.ui.Player;
 import seven.ui.PlayerBids;
 import seven.ui.SecretState;
 
-public class Group3Player implements Player {
+public class Group3PlayerThin implements Player {
 
 	/*
 	 * @SuppressWarnings("serial") /private class CharBag extends
@@ -64,7 +64,7 @@ public class Group3Player implements Player {
 	private List<Character> currentLetters;
 	private List<Word> wordlist = new ArrayList<Word>();
 	
-	
+	private Set<String> goodLetters= new HashSet<String>();
 
 	{
 		try {
