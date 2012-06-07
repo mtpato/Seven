@@ -16,13 +16,55 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import seven.g3.Group3Player.CharBag;
 import seven.ui.Letter;
 import seven.ui.LetterGame;
 import seven.ui.Player;
 import seven.ui.PlayerBids;
 import seven.ui.SecretState;
 
-public class Group3PlayerThin implements Player {
+public class Group3MC implements Player {
+	
+	@SuppressWarnings("serial")
+	private class CharBag extends ArrayList<Character> {
+		public CharBag(String word) {
+			for (char c : word.toCharArray())
+				this.add(c);
+		}
+		
+		public CharBag(List<Character> list) {
+			super.addAll(list);
+		}
+
+		public CharBag(CharBag c) {
+			super(c);
+		}
+
+		public CharBag() {
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof CharBag)
+				return equals((CharBag) obj);
+
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			Collections.sort(this);
+			return super.hashCode();
+		}
+
+		public boolean equals(CharBag c) {
+			Collections.sort(this);
+			Collections.sort(c);
+			return super.equals(c);
+		}
+	}
+	
+	Set<CharBag> sevenLetters = new HashSet<CharBag>();
 
 	
 
@@ -98,44 +140,50 @@ public class Group3PlayerThin implements Player {
 		int collides = 0;
 
 		
-		int numWith = getSevenCount(this.currentLetters, c);
-		int numWithout = getSevenCount(this.currentLetters);
-		
-		log.trace("numWith: " + numWith);
-		log.trace("numWithOut: " + numWithout);
+		runMC();
 		
 		
-		//double wWith = 20 * ((numWith * (currentLetters.size() + 1)) + numWith * (7 - (double) currentLetters.size() + 1 / LetterGame.getRemainingLetters().size() ));
-		//double wWithout = (numWithout * currentLetters.size()) + numWithout * (7 - (double) currentLetters.size() / LetterGame.getRemainingLetters().size() );
+		return 0;
+	}
+
+	private void runMC() {
+		char[] mine;
+		char[] left;
+		char letter;
+		boolean choice;
+		int money;
 		
-		double wWith = numWith * 10;
-		double wWithout = numWithout;
+		int bid;
+		
+		int wins = searchBranch(mine, left, letter, choice, bid, money);
+
 		
 		
-		log.trace("with: " + wWith);
-		log.trace("without: " + wWithout);
+	}
+	
+	private int score(List<Character> word) {
+		return 100;
+	}
+
+	private boolean searchBranch(List<Character> mine, List<Character> left, int money) {
 		
-		if(wWith > wWithout) {
-			return 20;
-		}
-		else {
-			return 5;
-		}
-		
-		/*for (String letters : goodLetters)
-			if (letters.contains(c + "")) {
-				//maxSize = set.size() > maxSize ? set.size() : maxSize;
-				collides++;
+		if(mine.size() == 7) {
+			if (sevenLetters.contains(new CharBag(mine))) {
+				if(money + score(mine) >= 100) {	
+					return true;
+				}
 			}
+			
+			return false;
+				
+		}
 		
-		log.trace(collides);*/
-
-		//int bet = (int) (((double) collides / goodLetters.size()) * (secretstate.getScore() / 2));
-		/*int bet = 0;
 		
-		Random r = new Random();
-
-		return bet == 0 ? r.nextInt(secretstate.getScore() / 2) : bet;*/
+		
+		                     
+		
+		
+		return searchBranch(mine[]);
 	}
 
 	private int getSevenCount(List<Character> currentLetters, char c) {
