@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,52 +24,23 @@ import seven.ui.SecretState;
 
 public class Group3PlayerThin implements Player {
 
-	/*
-	 * @SuppressWarnings("serial") /private class CharBag extends
-	 * ArrayList<Character> { public CharBag(String word) { for (char c :
-	 * word.toCharArray()) this.add(c); }
-	 * 
-	 * public CharBag(CharBag c) { super(c); }
-	 * 
-	 * public CharBag() { }
-	 * 
-	 * @Override public boolean equals(Object obj) { if (obj instanceof CharBag)
-	 * return equals((CharBag) obj);
-	 * 
-	 * return false; }
-	 * 
-	 * @Override public int hashCode() { Collections.sort(this); return
-	 * super.hashCode(); }
-	 * 
-	 * public boolean equals(CharBag c) { Collections.sort(this);
-	 * Collections.sort(c); return super.equals(c); } }
-	 */
-
-	/*
-	 * private class MakeSeven { public boolean yes; public int count; public
-	 * List<Character> characters;
-	 * 
-	 * public MakeSeven(boolean yes, int count, List<Character> characters) {
-	 * this.yes = yes; this.count = count; this.characters = characters; } }
-	 */
+	
 
 	private final Logger log = Logger.getLogger(this.getClass());
 
-	// private final Set<CharBag> sevenBags = new HashSet<CharBag>();
-	// private CharBag myBag = new CharBag();
 
-	// private List<Word> sevenList = new ArrayList<Word>();
 
 	private List<Set<Character>> makeSeven = new ArrayList<Set<Character>>();
 	private int myID;
 	private List<Character> currentLetters;
 	private List<Word> wordlist = new ArrayList<Word>();
 	
+	
 	private Set<String> goodLetters= new HashSet<String>();
 
 	{
 		try {
-			BufferedReader r = new BufferedReader(new FileReader("textFiles/dictionary.txt"));
+			BufferedReader r = new BufferedReader(new FileReader("textFiles/7letterWords.txt"));
 			String line = r.readLine(); // skip first line
 
 			while (null != (line = r.readLine())) {
@@ -77,68 +49,34 @@ public class Group3PlayerThin implements Player {
 
 				wordlist.add(new Word(line));
 
-				if (line.length() == 7) {
+				if (line.length() == 7) {//thin
+					char[] letters = line.toCharArray();
+					Arrays.sort(letters);
+
+					goodLetters.add(String.valueOf(letters));
+				}
+				
+				/*if (line.length() == 7) {//thick
 					Set<Character> row = new HashSet<Character>();
 
 					for (char c : line.toCharArray())
 						row.add(c);
 
 					makeSeven.add(row);
-				}
+				}*/
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
+		//log.trace("thin: " + goodLetters.size());
+		//log.trace("thick: " + makeSeven.size());
 	}
 
-	// private List<Character> myBag = new ArrayList<Character>();
 
-	/*
-	 * private class MakeSeven { public int count; public Word w;
-	 * 
-	 * public MakeSeven(int count, Word w) { this.count = count; this.w = w; } }
-	 * 
-	 * private class BettingTable { public Map<Character, Integer> map = new
-	 * HashMap<Character, Integer>(); public int max = Integer.MIN_VALUE; }
-	 * 
-	 * private BettingTable buildBettingTable(List<Character> bagList,
-	 * List<Character> remainingChars) { BettingTable tbl = new BettingTable();
-	 * String bag = new String();
-	 * 
-	 * for (Character c : bagList) bag += c;
-	 * 
-	 * for (Character c : remainingChars) { List<Character> r = new
-	 * ArrayList<Character>(remainingChars); r.remove(c);
-	 * 
-	 * MakeSeven s = makeSeven(new Word(bag + c), r, 0);
-	 * 
-	 * if (s.count > tbl.max) tbl.max = s.count;
-	 * 
-	 * tbl.map.put(c, s.count); }
-	 * 
-	 * log.trace("Done!");
-	 * 
-	 * return tbl; }
-	 * 
-	 * private MakeSeven makeSeven(Word bag, List<Character> rest, int depth) {
-	 * if (depth == 1) return new MakeSeven(0, null);
-	 * 
-	 * for (Word w : sevenList) if (bag.contains(w)) return new MakeSeven(1, w);
-	 * 
-	 * MakeSeven ret = new MakeSeven(0, null);
-	 * 
-	 * for (Character c : rest) { List<Character> r = new
-	 * ArrayList<Character>(rest); r.remove(c);
-	 * 
-	 * MakeSeven s = makeSeven(new Word(bag.word + c), r, depth + 1);
-	 * 
-	 * if (s.count > 0 && s.w.word.indexOf(c) > -1) {// fix this later ret.count
-	 * += s.count; ret.w = s.w; } }
-	 * 
-	 * return ret; }
-	 */
 
 	@Override
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
@@ -155,22 +93,171 @@ public class Group3PlayerThin implements Player {
 
 	@Override
 	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList, ArrayList<String> PlayerList, SecretState secretstate) {
-		Character c = bidLetter.getCharacter();
+		char c = bidLetter.getCharacter();
 		int maxSize = Integer.MIN_VALUE;
 		int collides = 0;
 
-		for (Set<Character> set : makeSeven)
-			if (set.contains(c)) {
-				maxSize = set.size() > maxSize ? set.size() : maxSize;
+		
+		int numWith = getSevenCount(this.currentLetters, c);
+		int numWithout = getSevenCount(this.currentLetters);
+		
+		log.trace("numWith: " + numWith);
+		log.trace("numWithOut: " + numWithout);
+		
+		
+		double wWith = 20 * ((numWith * (currentLetters.size() + 1)) + numWith * (7 - (double) currentLetters.size() + 1 / LetterGame.getRemainingLetters().size() ));
+		double wWithout = (numWithout * currentLetters.size()) + numWithout * (7 - (double) currentLetters.size() / LetterGame.getRemainingLetters().size() );
+		
+		log.trace("with: " + wWith);
+		log.trace("without: " + wWithout);
+		
+		if(wWith > wWithout) {
+			return 20;
+		}
+		else {
+			return 5;
+		}
+		
+		/*for (String letters : goodLetters)
+			if (letters.contains(c + "")) {
+				//maxSize = set.size() > maxSize ? set.size() : maxSize;
 				collides++;
 			}
+		
+		log.trace(collides);*/
 
-		int bet = (int) (((double) collides / makeSeven.size()) * (secretstate.getScore() / 2));
-
+		//int bet = (int) (((double) collides / goodLetters.size()) * (secretstate.getScore() / 2));
+		/*int bet = 0;
+		
 		Random r = new Random();
 
-		return bet == 0 ? r.nextInt(secretstate.getScore() / 2) : bet;
+		return bet == 0 ? r.nextInt(secretstate.getScore() / 2) : bet;*/
 	}
+
+	private int getSevenCount(List<Character> currentLetters, char c) {
+		List<Character> temp = new ArrayList<Character>();
+		
+		for(Character l :currentLetters ) temp.add(l);
+		
+		temp.add(c);
+		return getSevenCount(temp);
+	}
+
+	private int getSevenCount(List<Character> letters) {
+		String subString = "";
+		
+		for(Character c : letters) {
+			
+			subString = subString + c.charValue();
+		}
+		
+		int count = 0;
+		ArrayList<Letter> left = new ArrayList<Letter>(LetterGame.getRemainingLetters());
+		//Collections.copy(left, LetterGame.getRemainingLetters());
+		
+		int needed = 7 - letters.size();
+		
+		HashSet<String> subSets = getSubSets(needed, left);	
+		 
+		for(String s : subSets) {
+			
+			char[] temp = (subString + s).toCharArray();
+			Arrays.sort(temp);
+			
+			if (goodLetters.contains(String.copyValueOf(temp))){
+				count++;
+			}
+		}
+		
+		
+		
+		/*ArrayList<Letter> test = new ArrayList<Letter>();
+		test.add(new Letter(new Character('a'), 1));
+		test.add(new Letter(new Character('b'), 2));
+		test.add(new Letter(new Character('c'), 3));
+		test.add(new Letter(new Character('d'), 4));
+		
+		HashSet<String> subSets = getSubSets(3, test);*/	
+		
+		
+		
+		return count;
+	}
+
+	private HashSet<String> getSubSets(int needed, ArrayList<Letter> left) {
+		HashSet<String> subSets = new HashSet<String>();
+		log.trace("GETTING SETS");
+		for (int i = 0; i < left.size(); i++) {
+			if (needed > 1) {
+				for (int j = i + 1; j < left.size(); j++) {
+					
+					if (needed > 2) {
+						for (int k = j + 1; k < left.size(); k++) {
+							if (needed > 3) {
+								
+								for (int l = k + 1; l < left.size(); l++) {
+									if(needed > 4) {
+										for (int m = l + 1; m < left.size(); m++) {
+											if(needed > 5) {
+												log.trace("going round");
+												for (int n = m + 1; n < left.size(); n++) {
+													subSets.add(left.get(i).getCharacter().charValue()
+															+ ""
+															+ left.get(j).getCharacter().charValue()
+															+ left.get(k).getCharacter().charValue()
+															+ left.get(l).getCharacter().charValue()
+															+ left.get(m).getCharacter().charValue()
+															+ left.get(n).getCharacter().charValue());
+												}
+											}else {
+												subSets.add(left.get(i).getCharacter().charValue()
+														+ ""
+														+ left.get(j).getCharacter().charValue()
+														+ left.get(k).getCharacter().charValue()
+														+ left.get(l).getCharacter().charValue()
+														+ left.get(m).getCharacter().charValue());
+											}
+										}
+		
+									} else {
+										subSets.add(left.get(i).getCharacter().charValue()
+												+ ""
+												+ left.get(j).getCharacter().charValue()
+												+ left.get(k).getCharacter().charValue()
+												+ left.get(l).getCharacter().charValue());
+									}
+									
+									subSets.add(left.get(i).getCharacter().charValue()
+											+ ""
+											+ left.get(j).getCharacter().charValue()
+											+ left.get(k).getCharacter().charValue());
+								}
+							} else {
+								subSets.add(left.get(i).getCharacter().charValue()
+										+ ""
+										+ left.get(j).getCharacter().charValue()
+										+ left.get(k).getCharacter().charValue());
+							}
+							
+							
+						}
+					} else {
+						subSets.add(left.get(i).getCharacter().charValue() + ""
+								+ left.get(j).getCharacter().charValue());
+					}
+
+				}
+			} else {
+				subSets.add(left.get(i).getCharacter().charValue() + "");
+			}
+
+		}
+
+		
+		log.trace("DONE GETTING SETS");
+		return subSets;
+	}
+	
 
 	@Override
 	public void bidResult(boolean won, Letter letter, PlayerBids bids) {
