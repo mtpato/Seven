@@ -23,26 +23,40 @@ import seven.ui.SecretState;
 
 public class Group3Player implements Player {
 
-	/*
-	 * @SuppressWarnings("serial") /private class CharBag extends
-	 * ArrayList<Character> { public CharBag(String word) { for (char c :
-	 * word.toCharArray()) this.add(c); }
-	 * 
-	 * public CharBag(CharBag c) { super(c); }
-	 * 
-	 * public CharBag() { }
-	 * 
-	 * @Override public boolean equals(Object obj) { if (obj instanceof CharBag)
-	 * return equals((CharBag) obj);
-	 * 
-	 * return false; }
-	 * 
-	 * @Override public int hashCode() { Collections.sort(this); return
-	 * super.hashCode(); }
-	 * 
-	 * public boolean equals(CharBag c) { Collections.sort(this);
-	 * Collections.sort(c); return super.equals(c); } }
-	 */
+	@SuppressWarnings("serial")
+	private class CharBag extends ArrayList<Character> {
+		public CharBag(String word) {
+			for (char c : word.toCharArray())
+				this.add(c);
+		}
+
+		public CharBag(CharBag c) {
+			super(c);
+		}
+
+		public CharBag() {
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof CharBag)
+				return equals((CharBag) obj);
+
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			Collections.sort(this);
+			return super.hashCode();
+		}
+
+		public boolean equals(CharBag c) {
+			Collections.sort(this);
+			Collections.sort(c);
+			return super.equals(c);
+		}
+	}
 
 	/*
 	 * private class MakeSeven { public boolean yes; public int count; public
@@ -63,12 +77,11 @@ public class Group3Player implements Player {
 	private int myID;
 	private List<Character> currentLetters;
 	private List<Word> wordlist = new ArrayList<Word>();
-	
-	
 
 	{
 		try {
-			BufferedReader r = new BufferedReader(new FileReader("textFiles/dictionary.txt"));
+			BufferedReader r = new BufferedReader(new FileReader(
+					"textFiles/dictionary.txt"));
 			String line = r.readLine(); // skip first line
 
 			while (null != (line = r.readLine())) {
@@ -154,7 +167,8 @@ public class Group3Player implements Player {
 	}
 
 	@Override
-	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList, ArrayList<String> PlayerList, SecretState secretstate) {
+	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList,
+			ArrayList<String> PlayerList, SecretState secretstate) {
 		Character c = bidLetter.getCharacter();
 		int maxSize = Integer.MIN_VALUE;
 		int collides = 0;
@@ -165,7 +179,8 @@ public class Group3Player implements Player {
 				collides++;
 			}
 
-		int bet = (int) (((double) collides / makeSeven.size()) * (secretstate.getScore() / 2));
+		int bet = (int) (((double) collides / makeSeven.size()) * (secretstate
+				.getScore() / 2));
 
 		Random r = new Random();
 
