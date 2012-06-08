@@ -147,14 +147,11 @@ public class g3player implements Player {
 	public void newRound(SecretState secretState, int current_round) {
 
 		// be sure to reinitialize the list at the start of the round
-		currentLetters = new ArrayList<Character>();
 		
-		// add any letters from the secret state
-		for (Letter l : secretState.getSecretLetters()) {
-			//logger.trace("myID = " + myID + " and I'm adding " + l + " from the secret state");
-			currentLetters.add(l.getCharacter());
-		}
+		myBag = new ArrayList<Character>();
 	}
+	
+	private int playerScore = 100;
 	
 
 	/*
@@ -166,12 +163,8 @@ public class g3player implements Player {
 	 */
 	public int getBid(Letter bidLetter, ArrayList<PlayerBids> playerBidList, ArrayList<String> playerList, SecretState secretState) {
 		
-		wantLetter(bidLetter);
-		//logger.trace("myID=" + myID + " and I'm bidding on " + bidLetter);
-		//logger.trace("myID= " + myID + " and my score is " + secretState.getScore());
-
-		// randomly bid up to half of the remaining points
-		return random.nextInt(secretState.getScore()/2);
+		playerScore = secretState.getScore();
+		return playerScore / 6;
 	}
 
 	
@@ -194,7 +187,8 @@ public class g3player implements Player {
 		return 0;
 	}
 
-
+	List<Character> myBag;
+	
 	/*
 	 * This method is called after a bid. It indicates whether or not the player
 	 * won the bid and what letter was being bid on, and also includes all the
@@ -202,8 +196,7 @@ public class g3player implements Player {
 	 */
     public void bidResult(boolean won, Letter letter, PlayerBids bids) {
     	if (won) {
-    		//logger.trace("My ID is " + myID + " and I won the bid for " + letter);
-    		currentLetters.add(letter.getCharacter());
+    		myBag.add(letter.getCharacter());
     	}
     	else {
     		//logger.trace("My ID is " + myID + " and I lost the bid for " + letter);
@@ -215,9 +208,9 @@ public class g3player implements Player {
      * The word that you return will be scored for this round.
      */
 	public String getWord() {
-		char c[] = new char[currentLetters.size()];
+		char c[] = new char[myBag.size()];
 		for (int i = 0; i < c.length; i++) {
-			c[i] = currentLetters.get(i);
+			c[i] = myBag.get(i);
 		}
 		String s = new String(c);
 		Word ourletters = new Word(s);

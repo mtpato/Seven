@@ -23,7 +23,8 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	{
 		try {
-			BufferedReader r = new BufferedReader(new FileReader("textFiles/dictionary.txt"));
+			BufferedReader r = new BufferedReader(new FileReader(
+					"textFiles/dictionary.txt"));
 			String line = r.readLine(); // skip first line
 
 			while (null != (line = r.readLine())) {
@@ -39,53 +40,64 @@ public class Group3PlayerMonteCarlo implements Player {
 		}
 	}
 
-	private static final int SIMULATION_ROUNDS = 500;
-	
+	private static final int SIMULATION_ROUNDS = 1000000;
+
 	private int playerScore = 0;
-	
+
 	private List<Character> myLetters;
 
-	private int monteCarlo(List<Character> bag, List<Character> game, Character letter) {
+	private int monteCarlo(List<Character> bag, List<Character> game,
+			Character letter) {
 
 		int money = playerScore;
 
 		int max = money / 4;
 
-		int[] wins = new int[max + 1];
+		if(max == 0) max = 1;
+
+		int[] wins = new int[max];
 
 		Random me = new Random();
 
 		for (int x = 0; x < SIMULATION_ROUNDS; x++) {
 
-			int bet = me.nextInt(max) + 1;
+			
+			int bet = me.nextInt(max) + 1;// FIX THIS CANT GET RANDOM ON 0
 
 			if (simulate(bag, game, letter, bet, money))
-				wins[bet]++;
+				wins[bet - 1]++;
 		}
 
 		int winner = 0;
-		
+
 		int best = Integer.MIN_VALUE;
 
-		for (int x = 0; x < max; x++)
-			if (wins[x] > best)
-				winner = x;
+		for (int x = 0; x < max; x++) {
+			log.trace((x + 1) + ": " + wins[x]);
+			if (wins[x] > best) {
+				winner = x + 1;
+				best = wins[x];
+			}
 
-		return winner + 1;
+		}
+
+		return winner;
 	}
 
-	private boolean simulate(List<Character> bag, List<Character> game, Character letter, int bet, int money) {
+	private boolean simulate(List<Character> bag, List<Character> game,
+			Character letter, int bet, int money) {
 		Random me = new Random();
 		Random players = new Random();
 		Random index = new Random();
 
 		int match = players.nextInt(100 / 4) + 1;
 		int spent = 0;
+		int steps = gameSteps;
 
 		game = new ArrayList<Character>(game);
 		bag = new ArrayList<Character>(bag);
 
-		while (!game.isEmpty()) {
+		while (!game.isEmpty() && steps-- != 0) {
 
 			if (bet > match) {
 				bag.add(letter);
@@ -105,27 +117,37 @@ public class Group3PlayerMonteCarlo implements Player {
 
 		}
 
-		int score = getScore(bag);
+		return getWin(bag, spent);
 
-		return score >= spent;
 	}
 
-	private int getScore(List<Character> bag) {
-		char[] chars = new char[bag.size()];
+	private int gameSteps = 0;
 
-		for (int x = 0; x < bag.size(); x++)
-			chars[x] = bag.get(x);
+	private boolean getWin(List<Character> bag, int spent) {
 
-		Word word = new Word(new String(chars));
-		int best = Integer.MIN_VALUE;
+		if (bag.size() >= 10) {
 
-		for (Word w : wordList)
-			if (w.contains(word))
-				if (w.score > best)
-					best = w.score;
+			if (spent == 0 || (double) spent / bag.size() < 8)
+				return true;
 
-		return best;
+		}
+
+		return false;
 	}
+
+	/*
+	 * private int getScore(List<Character> bag) { char[] chars = new
+	 * char[bag.size()];
+	 * 
+	 * for (int x = 0; x < bag.size(); x++) chars[x] = bag.get(x);
+	 * 
+	 * Word word = new Word(new String(chars)); int best = Integer.MIN_VALUE;
+	 * 
+	 * for (Word w : wordList) if (w.contains(word)) if (w.score > best) best =
+	 * w.score;
+	 * 
+	 * return best; }
+	 */
 
 	private Random coin = new Random();
 
@@ -135,6 +157,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
+		gameSteps = 8 * number_of_players;// FIX THIS
 	}
 
 	@Override
@@ -144,15 +167,16 @@ public class Group3PlayerMonteCarlo implements Player {
 	}
 
 	@Override
-	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList, ArrayList<String> PlayerList, SecretState secretstate) {
+	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList,
+			ArrayList<String> PlayerList, SecretState secretstate) {
 		List<Letter> list = LetterGame.getRemainingLetters();
 		List<Character> gameLetters = new ArrayList<Character>();
-		
+
 		playerScore = secretstate.getScore();
-		
+
 		for (Letter l : list)
 			gameLetters.add(l.getCharacter());
-		
+
 		return monteCarlo(myLetters, gameLetters, bidLetter.getCharacter());
 	}
 
@@ -179,9 +203,9 @@ public class Group3PlayerMonteCarlo implements Player {
 
 			}
 		}
-		
+
 		log.trace("My ID is me and my word is " + bestword.word);
-		
+
 		return bestword.word;
 	}
 
