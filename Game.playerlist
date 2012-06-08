@@ -2,3 +2,11 @@ seven.g0.RandomPlayer
 seven.g3.g3player
 seven.g3.Group3Player
 seven.g3.Group3PlayerThin
+seven.g3.Group3PlayerMonteCarlo
+
+seven.g0.LetterValuePlayer
+seven.g1.FrequencyPlayer
+
+seven.g3.Group3Player
+seven.g4.G4PlayerDestroy
+seven.g5.AnotherDumbPlayer

@@ -16,7 +16,7 @@ import seven.ui.Player;
 import seven.ui.PlayerBids;
 import seven.ui.SecretState;
 
-public class Group3Player implements Player {
+public class Group3PlayerMonteCarlo implements Player {
 
 	private final Logger log = Logger.getLogger(this.getClass());
 	private List<Word> wordList = new ArrayList<Word>();
