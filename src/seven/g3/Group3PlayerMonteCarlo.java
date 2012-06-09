@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -20,6 +22,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	private final Logger log = Logger.getLogger(this.getClass());
 	private List<Word> wordList = new ArrayList<Word>();
+	private Set<CharBag> makeSeven = new HashSet<CharBag>();
 
 	{
 		try {
@@ -32,6 +35,9 @@ public class Group3PlayerMonteCarlo implements Player {
 				line = line.substring(line.indexOf(',') + 1);
 
 				wordList.add(new Word(line));
+				
+				if (line.length() == 7)
+					makeSeven.add(new CharBag(line));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -63,7 +69,7 @@ public class Group3PlayerMonteCarlo implements Player {
 		MCSimWorker[] workers = new MCSimWorker[8];//4 workers 
 		
 		for(int i = 0; i < workers.length; i++) {
-			workers[i] = new MCSimWorker(SIMULATION_ROUNDS/workers.length, money, max, wins, bag, game, letter, gameSteps);
+			workers[i] = new MCSimWorker(SIMULATION_ROUNDS/workers.length, money, max, wins, bag, game, letter, gameSteps,makeSeven);
 			workers[i].start();
 		}
 		
