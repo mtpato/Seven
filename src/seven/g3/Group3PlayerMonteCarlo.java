@@ -40,14 +40,13 @@ public class Group3PlayerMonteCarlo implements Player {
 		}
 	}
 
-	private static final int SIMULATION_ROUNDS = 1000000;
+	private static final int SIMULATION_ROUNDS = 100000;
 
 	private int playerScore = 0;
 
 	private List<Character> myLetters;
 
-	private int monteCarlo(List<Character> bag, List<Character> game,
-			Character letter) {
+	private int monteCarlo(List<Character> bag, List<Character> game, Character letter) {
 
 		int money = playerScore;
 
@@ -58,7 +57,30 @@ public class Group3PlayerMonteCarlo implements Player {
 		int[] wins = new int[max];
 
 		Random me = new Random();
-
+		
+		//thread here
+		
+		MCSimWorker[] workers = new MCSimWorker[8];//4 workers 
+		
+		for(int i = 0; i < workers.length; i++) {
+			workers[i] = new MCSimWorker(SIMULATION_ROUNDS/workers.length, money, max, wins, bag, game, letter, gameSteps);
+			workers[i].start();
+		}
+		
+		
+		
+		for(MCSimWorker w : workers) {
+			try {
+				w.join();
+				log.trace("JOIN");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		log.trace("all Joined");
+/*
 		for (int x = 0; x < SIMULATION_ROUNDS; x++) {
 
 			
@@ -67,7 +89,7 @@ public class Group3PlayerMonteCarlo implements Player {
 			if (simulate(bag, game, letter, bet, money))
 				wins[bet - 1]++;
 		}
-
+*/
 		int winner = 0;
 
 		int best = Integer.MIN_VALUE;
@@ -84,8 +106,7 @@ public class Group3PlayerMonteCarlo implements Player {
 		return winner;
 	}
 
-	private boolean simulate(List<Character> bag, List<Character> game,
-			Character letter, int bet, int money) {
+	private boolean simulate(List<Character> bag, List<Character> game, Character letter, int bet, int money) {
 		Random me = new Random();
 		Random players = new Random();
 		Random index = new Random();
