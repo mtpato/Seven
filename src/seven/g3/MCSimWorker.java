@@ -23,6 +23,7 @@ public class MCSimWorker extends Thread {
 	private Character givenLetter;
 	private int gameSteps;
 	private Set<CharBag> makeSeven;
+	private int numPlayers;
 
 	Random me = new Random();
 
@@ -42,6 +43,7 @@ public class MCSimWorker extends Thread {
 		this.givenLetter = letter;
 		this.gameSteps = gameSteps;
 		this.makeSeven = makeSeven;
+		//this.numPlayers = numPlayers;
 
 		/*
 		 * this.bag = new ArrayList<Character>(bag); this.game = new
@@ -92,7 +94,7 @@ public class MCSimWorker extends Thread {
 		Random players = new Random();
 		Random index = new Random();
 
-		int match = players.nextInt(100 / 4) + 1;
+		int match = players.nextInt(100 / 6) + 1;
 		int spent = 0;
 		int steps = gameSteps;
 
@@ -117,7 +119,7 @@ public class MCSimWorker extends Thread {
 			game.remove(letter);
 
 			bet = me.nextInt(money / 4) + 1;
-			match = players.nextInt(100 / 4) + 1;
+			match = players.nextInt(100 / 6) + 1;
 
 		}
 

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -47,10 +48,14 @@ public class Group3PlayerMonteCarlo implements Player {
 	}
 
 	private static final int SIMULATION_ROUNDS = 1000000;
+	
+	private static final String PLAYERNAME = "Group3PlayerMonteCa";
 
 	private int playerScore = 0;
 
 	private List<Character> myLetters;
+	
+	private HashMap<Integer, ArrayList<Integer>> betHist;
 
 	private int monteCarlo(List<Character> bag, List<Character> game, Character letter) {
 
@@ -69,7 +74,16 @@ public class Group3PlayerMonteCarlo implements Player {
 		MCSimWorker[] workers = new MCSimWorker[8];//4 workers 
 		
 		for(int i = 0; i < workers.length; i++) {
-			workers[i] = new MCSimWorker(SIMULATION_ROUNDS/workers.length, money, max, wins, bag, game, letter, gameSteps,makeSeven);
+			workers[i] = new MCSimWorker(SIMULATION_ROUNDS/workers.length, 
+										 money, 
+										 max, 
+										 wins, 
+										 bag, 
+										 game, 
+										 letter,
+										 gameSteps,
+										 makeSeven);
+			
 			workers[i].start();
 		}
 		
@@ -184,6 +198,11 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
+		betHist = new HashMap<Integer, ArrayList<Integer>>();
+		
+
+		
+		
 		gameSteps = 8 * number_of_players;// FIX THIS
 	}
 
@@ -196,6 +215,20 @@ public class Group3PlayerMonteCarlo implements Player {
 	@Override
 	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList,
 			ArrayList<String> PlayerList, SecretState secretstate) {
+		
+		if(betHist.isEmpty()) {
+			for(int i = 0; i < PlayerList.size(); i++) {
+				if(!PlayerList.get(i).contains(PLAYERNAME)) {
+					betHist.put(i, new ArrayList<Integer>());
+				}
+				
+				
+			}
+		}
+
+		
+		
+		
 		List<Letter> list = LetterGame.getRemainingLetters();
 		List<Character> gameLetters = new ArrayList<Character>();
 
@@ -209,6 +242,17 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void bidResult(boolean won, Letter letter, PlayerBids bids) {
+		
+		for (int i = 0; i < bids.getBidvalues().size(); i ++) {
+			if(betHist.containsKey(i)) {
+				betHist.get(i).add(bids.getBidvalues().get(i));
+				log.trace(betHist.get(i));
+			}
+
+			
+		}
+		
+		
 		if (won)
 			myLetters.add(letter.getCharacter());
 	}
