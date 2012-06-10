@@ -15,12 +15,28 @@ public class BidHist {
 	public BidHist(int pIndex, String pName) {
 		this.pIndex = pIndex;
 		this.pName = pName;
+		maxBid = -1;
+		minBid = 1000000;
 	}
 	
 	
 	public void addBet(int bet) {
-		// add the new bet
-		//calc min max and average and std
+		bidHistory.add(bet);
+		
+		int sum = 0;
+		
+		for(int i = 0; i < bidHistory.size(); i ++) {
+			if(bidHistory.get(i) > maxBid) maxBid =  bidHistory.get(i);
+			if(bidHistory.get(i) < minBid) minBid =  bidHistory.get(i);
+			
+			sum = sum + bidHistory.get(i);
+		}
+		
+		if(sum > 0) {
+			aveBid = sum / bidHistory.size();
+		}
+		
+		//STILL NEED std
 		
 	}
 
