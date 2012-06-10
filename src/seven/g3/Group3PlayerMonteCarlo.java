@@ -46,7 +46,7 @@ public class Group3PlayerMonteCarlo implements Player {
 		}
 	}
 
-	private static final int SIMULATION_ROUNDS = 100000;
+	private static final int SIMULATION_ROUNDS = 1000000;
 
 	private int playerScore = 0;
 

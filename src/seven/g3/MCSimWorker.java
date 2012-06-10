@@ -69,9 +69,6 @@ public class MCSimWorker extends Thread {
 
 		}
 
-		for (int i = 0; i < localWins.length; i++) {
-			log.trace(localWins[i]);
-		}
 		updateSharedWins();
 		
 		log.trace("greater: " + greater);
