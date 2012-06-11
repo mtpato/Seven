@@ -47,7 +47,7 @@ public class Group3PlayerMonteCarlo implements Player {
 		}
 	}
 
-	private static final int SIMULATION_ROUNDS = 1000000;
+	private static final int SIMULATION_ROUNDS = 100000;
 	
 	private static final String PLAYERNAME = "Group3PlayerMonteCa";
 
@@ -55,7 +55,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	private List<Character> myLetters;
 	
-	private HashMap<Integer, ArrayList<Integer>> betHist;
+	private ArrayList<BidHist> bidHists;
 
 	private int monteCarlo(List<Character> bag, List<Character> game, Character letter) {
 
@@ -198,7 +198,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
-		betHist = new HashMap<Integer, ArrayList<Integer>>();
+		bidHists = new ArrayList<BidHist>();
 		
 
 		
@@ -216,10 +216,10 @@ public class Group3PlayerMonteCarlo implements Player {
 	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList,
 			ArrayList<String> PlayerList, SecretState secretstate) {
 		
-		if(betHist.isEmpty()) {
+		if(bidHists.isEmpty()) {
 			for(int i = 0; i < PlayerList.size(); i++) {
 				if(!PlayerList.get(i).contains(PLAYERNAME)) {
-					betHist.put(i, new ArrayList<Integer>());
+					bidHists.add(new BidHist(i, PlayerList.get(i)));
 				}
 				
 				
@@ -243,14 +243,16 @@ public class Group3PlayerMonteCarlo implements Player {
 	@Override
 	public void bidResult(boolean won, Letter letter, PlayerBids bids) {
 		
-		for (int i = 0; i < bids.getBidvalues().size(); i ++) {
-			if(betHist.containsKey(i)) {
-				betHist.get(i).add(bids.getBidvalues().get(i));
-				log.trace(betHist.get(i));
-			}
-
-			
+		for(BidHist b: bidHists) {
+			b.addBet(bids.getBidvalues().get(b.getpIndex()));
+					
 		}
+		
+		for(BidHist b: bidHists) {
+			log.trace(b.getpIndex() + " " + b.getpName() + ": " + b.getMinBid() + " " + b.getAveBid() + " " + b.getMaxBid());
+					
+		}
+		
 		
 		
 		if (won)

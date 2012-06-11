@@ -10,6 +10,8 @@ public class BidHist {
 	private double stdBids;
 	private int minBid;
 	private int maxBid;
+	private int[] freq; // implement 
+	private int mode;// implement 
 	
 	
 	public BidHist(int pIndex, String pName) {
@@ -17,6 +19,8 @@ public class BidHist {
 		this.pName = pName;
 		maxBid = -1;
 		minBid = 1000000;
+		bidHistory = new ArrayList<Integer>();
+		freq = new int[100];//MIGHT NEED TO BE BIGGER IF PEOPLE WILL BET MORE 
 	}
 	
 	
