@@ -3,15 +3,15 @@ package seven.g3;
 import java.util.ArrayList;
 
 public class BidHist {
-	private int pIndex;
-	private String pName;
-	private ArrayList<Integer> bidHistory;
-	private int aveBid;
-	private double stdBids;
-	private int minBid;
-	private int maxBid;
-	private int[] freq; // implement 
-	private int mode;// implement 
+	private int pIndex;//player index in list
+	private String pName;//player name
+	private ArrayList<Integer> bidHistory;//player bidhistory
+	private int aveBid;//average bid
+	private double stdBids;// bid std
+	private int minBid;//min bid
+	private int maxBid;// max bid
+	private int[] freq; // the number of times each bid was made
+	private int mode;// most common bid
 	
 	
 	public BidHist(int pIndex, String pName) {
@@ -27,12 +27,12 @@ public class BidHist {
 	public void addBet(int bet) {
 		bidHistory.add(bet);
 		
-		int sum = 0;
+		if(bet > maxBid) maxBid = bet;
+		if(bet < minBid) minBid = bet;
+		
+		int sum = 0;		
 		
 		for(int i = 0; i < bidHistory.size(); i ++) {
-			if(bidHistory.get(i) > maxBid) maxBid =  bidHistory.get(i);
-			if(bidHistory.get(i) < minBid) minBid =  bidHistory.get(i);
-			
 			sum = sum + bidHistory.get(i);
 		}
 		
@@ -40,8 +40,31 @@ public class BidHist {
 			aveBid = sum / bidHistory.size();
 		}
 		
+		freq[bet]++;
+		
+		setMode();
+		
 		//STILL NEED std
 		
+	}
+
+
+	private void setMode() {
+		
+		int most = 0;
+		
+		for(int i = 0; i < freq.length; i ++) {
+			if (freq[i] > most) {
+				most = freq[i];
+			}
+		}
+		
+		mode = most;
+		
+	}
+	
+	public int getMode() {
+		return mode;
 	}
 
 
