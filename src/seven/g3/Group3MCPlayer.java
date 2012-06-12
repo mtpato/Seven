@@ -19,7 +19,7 @@ import seven.ui.Player;
 import seven.ui.PlayerBids;
 import seven.ui.SecretState;
 
-public class Group3PlayerMonteCarlo implements Player {
+public class Group3MCPlayer implements Player {
 
 	private final Logger log = Logger.getLogger(this.getClass());
 	private List<Word> wordList = new ArrayList<Word>();
@@ -50,15 +50,13 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	private static final int SIMULATION_ROUNDS = 100000;
 	
-	private static final String PLAYERNAME = "Group3PlayerMonteCarlo";
+	private static final String PLAYERNAME = "Group3PlayerMonteCa";
 
 	private int playerScore = 0;
 
 	private List<Character> myLetters;
 	
-	private List<BidHist> bidHists;
-	
-	private int numberOfPlayers;
+	private ArrayList<BidHist> bidHists;
 
 	private int monteCarlo(List<Character> bag, List<Character> game, Character letter) {
 
@@ -74,10 +72,10 @@ public class Group3PlayerMonteCarlo implements Player {
 		
 		//thread here
 		
-		MCSimWorkerStat[] workers = new MCSimWorkerStat[1];//4 workers 
+		MCSimWorker[] workers = new MCSimWorker[8];//4 workers 
 		
 		for(int i = 0; i < workers.length; i++) {
-			workers[i] = new MCSimWorkerStat(SIMULATION_ROUNDS/workers.length, 
+			workers[i] = new MCSimWorker(SIMULATION_ROUNDS/workers.length, 
 										 money, 
 										 max, 
 										 wins, 
@@ -85,14 +83,14 @@ public class Group3PlayerMonteCarlo implements Player {
 										 game, 
 										 letter,
 										 gameSteps,
-										 bidHists);
+										 makeSeven);
 			
 			workers[i].start();
 		}
 		
 		
 		
-		for(MCSimWorkerStat w : workers) {
+		for(MCSimWorker w : workers) {
 			try {
 				w.join();
 				log.trace("JOIN");
@@ -203,7 +201,7 @@ public class Group3PlayerMonteCarlo implements Player {
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
 		bidHists = new ArrayList<BidHist>();
 		
-		numberOfPlayers = number_of_players;
+
 		
 		
 		
@@ -212,14 +210,9 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void newRound(SecretState secretState, int current_round) {
-		gameSteps = 8 * (numberOfPlayers);
+		gameSteps = 8 * (bidHists.size() + 1);
 		playerScore = secretState.getScore();
 		myLetters = new ArrayList<Character>();
-		
-		for (Letter l : secretState.getSecretLetters())
-			myLetters.add(l.getCharacter());
-		
-		//gameSteps -= (myLetters.size() * (bidHists.size() + 1));
 	}
 
 	@Override
@@ -227,7 +220,7 @@ public class Group3PlayerMonteCarlo implements Player {
 			ArrayList<String> PlayerList, SecretState secretstate) {
 		
 		gameSteps--;//how many steps left is one less
-		log.trace("GAME STEPS IN MAIN: " + gameSteps);
+		
 		if(bidHists.isEmpty()) {
 			for(int i = 0; i < PlayerList.size(); i++) {
 				if(!PlayerList.get(i).contains(PLAYERNAME)) {
@@ -258,14 +251,8 @@ public class Group3PlayerMonteCarlo implements Player {
 		//NEED TO FIND THE WINNER AND DEDUCT THE RIGHT AMOUNT FROM THEIR BANK IN THE BIDHIST CLASS
 		for(BidHist b: bidHists) {
 			b.addBet(bids.getBidvalues().get(b.getpIndex()));	
-			
-			if(bids.getWinnerID() == b.getpIndex()) {
-				b.addMoney((bids.getWinAmmount() * -1));
-			}
 					
 		}
-		
-		
 		
 		for(BidHist b: bidHists) {
 			log.trace(b.getpIndex() + " " + b.getpName() + ": " + b.getMinBid() + " " + b.getAveBid() + " " + b.getMaxBid());
@@ -303,11 +290,6 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void updateScores(ArrayList<Integer> scores) {
-		for(BidHist b: bidHists) {
-			b.setMoney(scores.get(b.getpIndex()));
-		}
-			
-		
 	}
 
 }

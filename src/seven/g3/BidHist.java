@@ -22,8 +22,10 @@ public class BidHist {
 		this.pName = pName;
 		maxBid = -1;
 		minBid = 1000000;
+		aveBid = 10;
 		bidHistory = new ArrayList<Integer>();
-		freq = new int[100];//MIGHT NEED TO BE BIGGER IF PEOPLE WILL BET MORE 
+		freq = new int[100];//MIGHT NEED TO BE BIGGER IF PEOPLE WILL BET MORE
+		moneyLeft = 100;
 	}
 	
 	
@@ -43,6 +45,14 @@ public class BidHist {
 		
 		//STILL NEED std
 		
+	}
+	
+	public void setMoney(int money) {
+		this.moneyLeft = money;
+	}
+	
+	public void addMoney(int amount) {
+		moneyLeft = moneyLeft + amount;
 	}
 
 
