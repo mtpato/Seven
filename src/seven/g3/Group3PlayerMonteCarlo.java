@@ -216,6 +216,8 @@ public class Group3PlayerMonteCarlo implements Player {
 	public int getBid(Letter bidLetter, ArrayList<PlayerBids> PlayerBidList,
 			ArrayList<String> PlayerList, SecretState secretstate) {
 		
+		gameSteps--;//how many steps left is one less
+		
 		if(bidHists.isEmpty()) {
 			for(int i = 0; i < PlayerList.size(); i++) {
 				if(!PlayerList.get(i).contains(PLAYERNAME)) {
@@ -243,8 +245,9 @@ public class Group3PlayerMonteCarlo implements Player {
 	@Override
 	public void bidResult(boolean won, Letter letter, PlayerBids bids) {
 		
+		//NEED TO FIND THE WINNER AND DEDUCT THE RIGHT AMOUNT FROM THEIR BANK IN THE BIDHIST CLASS
 		for(BidHist b: bidHists) {
-			b.addBet(bids.getBidvalues().get(b.getpIndex()));
+			b.addBet(bids.getBidvalues().get(b.getpIndex()));	
 					
 		}
 		

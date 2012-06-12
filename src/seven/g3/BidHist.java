@@ -12,6 +12,9 @@ public class BidHist {
 	private int maxBid;// max bid
 	private int[] freq; // the number of times each bid was made
 	private int mode;// most common bid
+	private int last;
+	private int lastFiveAve;
+	private int moneyLeft;//NEED TO KEEP UPDATED
 	
 	
 	public BidHist(int pIndex, String pName) {
@@ -25,27 +28,39 @@ public class BidHist {
 	
 	
 	public void addBet(int bet) {
-		bidHistory.add(bet);
 		
-		if(bet > maxBid) maxBid = bet;
-		if(bet < minBid) minBid = bet;
+		last = bet;//update last 
+		bidHistory.add(bet);// add bet to bet list
 		
+		if(bet > maxBid) maxBid = bet;//update max
+		if(bet < minBid) minBid = bet;// update min
+		
+		getAves();// update averages
+		
+		freq[bet]++; // update freq
+		
+		setMode();//update the mode
+		
+		//STILL NEED std
+		
+	}
+
+
+	private void getAves() {
 		int sum = 0;		
 		
-		for(int i = 0; i < bidHistory.size(); i ++) {
+		for(int i = bidHistory.size() - 1; i >= 0; i --) {
 			sum = sum + bidHistory.get(i);
+			
+			if(i == bidHistory.size() - 6) {
+				lastFiveAve = sum / 5;
+			}
+			
 		}
 		
 		if(sum > 0) {
 			aveBid = sum / bidHistory.size();
 		}
-		
-		freq[bet]++;
-		
-		setMode();
-		
-		//STILL NEED std
-		
 	}
 
 
@@ -61,6 +76,14 @@ public class BidHist {
 		
 		mode = most;
 		
+	}
+	
+	public int getLastFiveAve() {
+		return lastFiveAve;
+	}
+	
+	public int getLast() {
+		return last;
 	}
 	
 	public int getMode() {
