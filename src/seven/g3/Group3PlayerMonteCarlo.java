@@ -66,7 +66,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 		int max;
 		if (money < 95) {
-			max = (money / 5) + 3;
+			max = (money / 5) + 4;
 		} else {
 			max = 25;
 		}
@@ -115,7 +115,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 		int best = Integer.MIN_VALUE;
 
-		for (int x = 2; x < max; x++) {
+		for (int x = 3; x < max; x++) {
 			log.trace((x + 1) + ": " + wins[x]);
 			if (wins[x] > best) {
 				winner = x + 1;

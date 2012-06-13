@@ -105,9 +105,9 @@ public class MCSimWorkerStat extends Thread {
 		//Random players = new Random();
 		//Random index = new Random();
 		int numPlayers = bidHists.size();
-		List<Integer> stepBids = new ArrayList<Integer>(bidHists.size());
+		List<Integer> stepBids = new ArrayList<Integer>(numPlayers);
 
-		for(int i = 0; i < bidHists.size(); i ++) {
+		for(int i = 0; i < numPlayers; i ++) {
 			stepBids.add(i, bidHists.get(i).getAveBid());
 		}
 		
@@ -141,13 +141,13 @@ public class MCSimWorkerStat extends Thread {
 
 			
 			if(money < 95) {
-				bet = ran.nextInt(money / 5) + 3;//1/5 + 3 to back off a little and make it min at 3
+				bet = ran.nextInt(money / 5) + 4;//1/5 + 3 to back off a little and make it min at 3
 			} else {
-				bet = ran.nextInt(22) + 3;// dont want to bid crazy high even if we have over 100. this was an isseu before we were betting like 50 when we had 200 and blowing tons of money 				
+				bet = ran.nextInt(22) + 4;// dont want to bid crazy high even if we have over 100. this was an isseu before we were betting like 50 when we had 200 and blowing tons of money 				
 			}
 			
 			
-			for(int i = 0; i < bidHists.size(); i ++) {
+			for(int i = 0; i < numPlayers; i ++) {
 				stepBids.set(i, bidHists.get(i).getAveBid());
 			}
 			//match = ran.nextInt(100 / 6) + 1;
@@ -184,6 +184,8 @@ public class MCSimWorkerStat extends Thread {
 		if(bagSize == 12 && ran < 0.9586) {
 			return true;
 		}
+		
+		
 		if(bagSize == 13 && ran < 0.9767) {
 			return true;
 		}
@@ -209,7 +211,7 @@ public class MCSimWorkerStat extends Thread {
 		//log.trace("bagsize" + bag.size());
 		if (isSeven(bagSize)) {
 			//log.trace("isSeven!");
-			if (spent == 0 || (double) spent / bagSize < 8)
+			if (spent == 0 || (double) spent / (bagSize - givenBagSize) < 5)//5 rocks because at 12 letters 5 gives you 12*4 = 48 + the letters when means profit 
 				return true;
 
 		}
