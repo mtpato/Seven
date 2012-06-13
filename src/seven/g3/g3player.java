@@ -149,6 +149,7 @@ public class g3player implements Player {
 		// be sure to reinitialize the list at the start of the round
 		
 		myBag = new ArrayList<Character>();
+		letters = secretState.getSecretLetters().size();
 	}
 	
 	private int playerScore = 100;
@@ -162,9 +163,9 @@ public class g3player implements Player {
 	 * secretState = your secret state (which includes the score)
 	 */
 	public int getBid(Letter bidLetter, ArrayList<PlayerBids> playerBidList, ArrayList<String> playerList, SecretState secretState) {
-		
+		if (letters == 12) return 1;
 		playerScore = secretState.getScore();
-		return playerScore / 6;
+		return 3;
 	}
 
 	
@@ -176,6 +177,8 @@ public class g3player implements Player {
 		return false;
 		
 	}
+	
+	private int letters = 0;
 
 
 	private int getLetterScore(Letter bidLetter) {
@@ -197,6 +200,7 @@ public class g3player implements Player {
     public void bidResult(boolean won, Letter letter, PlayerBids bids) {
     	if (won) {
     		myBag.add(letter.getCharacter());
+    		letters++;
     	}
     	else {
     		//logger.trace("My ID is " + myID + " and I lost the bid for " + letter);

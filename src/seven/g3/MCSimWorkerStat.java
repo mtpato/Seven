@@ -21,6 +21,9 @@ public class MCSimWorkerStat extends Thread {
 	private int[] localWins;
 	private List<Character> givenBag;
 	private List<Character> givenGame;
+	private int givenBagSize;
+	private int givenGameSize;
+	
 	private Character givenLetter;
 	private int gameSteps;
 	private Set<CharBag> makeSeven;
@@ -43,6 +46,11 @@ public class MCSimWorkerStat extends Thread {
 		this.localWins = new int[wins.length];
 		this.givenBag = bag;
 		this.givenGame = game;
+		
+		givenBagSize = bag.size();
+		givenGameSize = game.size();
+		
+		
 		this.givenLetter = letter;
 		this.gameSteps = gameSteps;
 		this.bidHists = bidHists;
@@ -66,9 +74,9 @@ public class MCSimWorkerStat extends Thread {
 
 		for (int x = 0; x < rounds; x++) {
 
-			int bet = me.nextInt(max) + 1;// FIX THIS CANT GET RANDOM ON 0
+			int bet = me.nextInt(max - 3) + 3;// 3-max  max cant be less than 3
 
-			if (simulate(givenBag, givenGame, givenLetter, bet, money)) {
+			if (simulate(givenBagSize, givenGameSize, givenLetter, bet, money)) {
 				localWins[bet - 1]++;
 			}
 
@@ -91,7 +99,7 @@ public class MCSimWorkerStat extends Thread {
 
 	}
 
-	private boolean simulate(List<Character> bag, List<Character> game,
+	private boolean simulate(int bagSizeIn, int gameSizeIn,
 			Character letter, int bet, int money) {
 		Random ran = new Random();
 		//Random players = new Random();
@@ -110,29 +118,35 @@ public class MCSimWorkerStat extends Thread {
 
 		// log.trace("IN SIM");
 
-		game = new ArrayList<Character>(game);
-		bag = new ArrayList<Character>(bag);
+		int gameSize = gameSizeIn;
+		int bagSize = bagSizeIn;
 
-		while (!game.isEmpty() && steps-- != 0) {
+		while (gameSize != 0 && steps-- != 0) {
 			
 			
 			match = Collections.max(stepBids);
 			if (bet > match) {
-				bag.add(letter);
+				bagSize++;
 				spent += match;
 				money -= match;
 			} else if (bet == match && heads()) {
 				
-				bag.add(letter);
+				bagSize++;
 				spent += (match - 1);
 				money -= (match - 1);
 			}
 			//log.trace("stepBids : " + match + " " + bet);
 
-			letter = game.get(ran.nextInt(game.size()));
-			game.remove(letter);
+			gameSize--;
 
-			bet = ran.nextInt(money / 4) + 1;
+			
+			if(money < 95) {
+				bet = ran.nextInt(money / 5) + 3;//1/5 + 3 to back off a little and make it min at 3
+			} else {
+				bet = ran.nextInt(22) + 3;// dont want to bid crazy high even if we have over 100. this was an isseu before we were betting like 50 when we had 200 and blowing tons of money 				
+			}
+			
+			
 			for(int i = 0; i < bidHists.size(); i ++) {
 				stepBids.set(i, bidHists.get(i).getAveBid());
 			}
@@ -140,44 +154,46 @@ public class MCSimWorkerStat extends Thread {
 
 		}
 
-		return getWin(bag, spent);
+		return getWin(bagSize, spent);
 
 	}
 	
 	private int greater = 0;
 	private int sevenCool = 0;
 
-	private boolean isSeven(List<Character> bag) {
+	private boolean isSeven(int bagSize) {
 		double ran = me.nextDouble();
 		
-		if(bag.size() == 7 && ran < 0.0931) {
+		//if(bagSize > 10) log.trace("SHOUDL WIN");
+		
+		if(bagSize == 7 && ran < 0.0931) {
 			return true;
 		}
-		if(bag.size() == 8 && ran < 0.3316) {
+		if(bagSize == 8 && ran < 0.3316) {
 			return true;
 		}
-		if(bag.size() == 9 && ran < 0.5906) {
+		if(bagSize == 9 && ran < 0.5906) {
 			return true;
 		}
-		if(bag.size() == 10 && ran < 0.7794) {
+		if(bagSize == 10 && ran < 0.7794) {
 			return true;
 		}
-		if(bag.size() == 11 && ran < 0.8864) {
+		if(bagSize == 11 && ran < 0.8864) {
 			return true;
 		}
-		if(bag.size() == 12 && ran < 0.9586) {
+		if(bagSize == 12 && ran < 0.9586) {
 			return true;
 		}
-		if(bag.size() == 13 && ran < 0.9767) {
+		if(bagSize == 13 && ran < 0.9767) {
 			return true;
 		}
-		if(bag.size() == 14 && ran < 0.8850) {
+		if(bagSize == 14 && ran < 0.9850) {
 			return true;
 		}
-		if(bag.size() == 15 && ran < 0.9949) {
+		if(bagSize == 15 && ran < 0.9949) {
 			return true;
 		}
-		if(bag.size() == 16 && ran < 0.9974) {
+		if(bagSize == 16 && ran < 0.9974) {
 			return true;
 		}
 		
@@ -187,13 +203,13 @@ public class MCSimWorkerStat extends Thread {
 		return false;
 	}
 
-	private boolean getWin(List<Character> bag, int spent) {
+	private boolean getWin(int bagSize, int spent) {
 
 
 		//log.trace("bagsize" + bag.size());
-		if (isSeven(bag)) {
+		if (isSeven(bagSize)) {
 			//log.trace("isSeven!");
-			if (spent == 0 || (double) spent / bag.size() < 8)
+			if (spent == 0 || (double) spent / bagSize < 8)
 				return true;
 
 		}

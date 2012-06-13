@@ -64,7 +64,13 @@ public class Group3PlayerMonteCarlo implements Player {
 
 		int money = playerScore;
 
-		int max = money / 4;
+		int max;
+		if (money < 95) {
+			max = (money / 5) + 3;
+		} else {
+			max = 25;
+		}
+		
 
 		if(max == 0) max = 1;
 
@@ -103,21 +109,13 @@ public class Group3PlayerMonteCarlo implements Player {
 		}
 		
 		log.trace("all Joined");
-/*
-		for (int x = 0; x < SIMULATION_ROUNDS; x++) {
 
-			
-			int bet = me.nextInt(max) + 1;// FIX THIS CANT GET RANDOM ON 0
 
-			if (simulate(bag, game, letter, bet, money))
-				wins[bet - 1]++;
-		}
-*/
 		int winner = 0;
 
 		int best = Integer.MIN_VALUE;
 
-		for (int x = 0; x < max; x++) {
+		for (int x = 2; x < max; x++) {
 			log.trace((x + 1) + ": " + wins[x]);
 			if (wins[x] > best) {
 				winner = x + 1;
@@ -129,55 +127,10 @@ public class Group3PlayerMonteCarlo implements Player {
 		return winner;
 	}
 
-	private boolean simulate(List<Character> bag, List<Character> game, Character letter, int bet, int money) {
-		Random me = new Random();
-		Random players = new Random();
-		Random index = new Random();
 
-		int match = players.nextInt(100 / 4) + 1;
-		int spent = 0;
-		int steps = gameSteps;
-
-		game = new ArrayList<Character>(game);
-		bag = new ArrayList<Character>(bag);
-
-		while (!game.isEmpty() && steps-- != 0) {
-
-			if (bet > match) {
-				bag.add(letter);
-				spent += match;
-				money -= match;
-			} else if (bet == match && heads()) {
-				bag.add(letter);
-				spent += (match - 1);
-				money -= (match - 1);
-			}
-
-			letter = game.get(index.nextInt(game.size()));
-			game.remove(letter);
-
-			bet = me.nextInt(money / 4) + 1;
-			match = players.nextInt(100 / 4) + 1;
-
-		}
-
-		return getWin(bag, spent);
-
-	}
 
 	private int gameSteps = 0;
 
-	private boolean getWin(List<Character> bag, int spent) {
-
-		if (bag.size() >= 10) {
-
-			if (spent == 0 || (double) spent / bag.size() < 8)
-				return true;
-
-		}
-
-		return false;
-	}
 
 	/*
 	 * private int getScore(List<Character> bag) { char[] chars = new
@@ -193,11 +146,9 @@ public class Group3PlayerMonteCarlo implements Player {
 	 * return best; }
 	 */
 
-	private Random coin = new Random();
 
-	private boolean heads() {
-		return coin.nextInt(100) % 2 == 0;
-	}
+
+
 
 	@Override
 	public void newGame(int id, int number_of_rounds, int number_of_players) {
@@ -219,7 +170,7 @@ public class Group3PlayerMonteCarlo implements Player {
 		for (Letter l : secretState.getSecretLetters())
 			myLetters.add(l.getCharacter());
 		
-		//gameSteps -= (myLetters.size() * (bidHists.size() + 1));
+		gameSteps -= (myLetters.size() * (bidHists.size() + 1));
 	}
 
 	@Override
@@ -238,18 +189,20 @@ public class Group3PlayerMonteCarlo implements Player {
 			}
 		}
 
-		
-		
-		
 		List<Letter> list = LetterGame.getRemainingLetters();
 		List<Character> gameLetters = new ArrayList<Character>();
+		
+		if (myLetters.size() >= 12)
+			return 1;
 
 		playerScore = secretstate.getScore();
 
 		for (Letter l : list)
 			gameLetters.add(l.getCharacter());
 
-		return monteCarlo(myLetters, gameLetters, bidLetter.getCharacter());
+		int bid = monteCarlo(myLetters, gameLetters, bidLetter.getCharacter());
+	
+		return bid;
 	}
 
 	@Override
