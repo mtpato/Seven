@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
@@ -12,6 +14,8 @@ import seven.ui.Player;
 
 public class MCSimWorkerStat extends Thread {
 
+	private boolean timeDone = false;
+	
 	private final Logger log = Logger.getLogger(this.getClass());
 
 	private int rounds;
@@ -37,7 +41,7 @@ public class MCSimWorkerStat extends Thread {
 			List<Character> bag, List<Character> game, Character letter,
 			int gameSteps, 	List<BidHist> bidHists) {
 
-		log.trace("rounds: " + rounds);
+		//log.trace("rounds: " + rounds);
 
 		this.rounds = rounds;
 		this.money = money;
@@ -71,8 +75,13 @@ public class MCSimWorkerStat extends Thread {
 	}
 
 	private void monteCarlo() {
+		
+		Timer t = new Timer();
+		StopTimer st = new StopTimer();
 
-		for (int x = 0; x < rounds; x++) {
+		t.schedule(st, 995); 
+		
+		while (!timeDone) {
 
 			int bet = me.nextInt(max - 3) + 3;// 3-max  max cant be less than 3
 
@@ -81,6 +90,16 @@ public class MCSimWorkerStat extends Thread {
 			}
 
 		}
+		
+		/*for (int x = 0; x < rounds; x++) {
+
+			int bet = me.nextInt(max - 3) + 3;// 3-max  max cant be less than 3
+
+			if (simulate(givenBagSize, givenGameSize, givenLetter, bet, money)) {
+				localWins[bet - 1]++;
+			}
+
+		}*/
 
 		updateSharedWins();
 		
@@ -117,6 +136,8 @@ public class MCSimWorkerStat extends Thread {
 		//log.trace("steps left: " + gameSteps);
 
 		// log.trace("IN SIM");
+		
+		match = Collections.max(stepBids);// makes things faster cause its just average
 
 		int gameSize = gameSizeIn;
 		int bagSize = bagSizeIn;
@@ -124,7 +145,7 @@ public class MCSimWorkerStat extends Thread {
 		while (gameSize != 0 && steps-- != 0) {
 			
 			
-			match = Collections.max(stepBids);
+			//match = Collections.max(stepBids);//put back for normallized stats
 			if (bet > match) {
 				bagSize++;
 				spent += match;
@@ -146,10 +167,10 @@ public class MCSimWorkerStat extends Thread {
 				bet = ran.nextInt(22) + 4;// dont want to bid crazy high even if we have over 100. this was an isseu before we were betting like 50 when we had 200 and blowing tons of money 				
 			}
 			
-			
+			/*//put back for normallized stats
 			for(int i = 0; i < numPlayers; i ++) {
 				stepBids.set(i, bidHists.get(i).getAveBid());
-			}
+			}*/
 			//match = ran.nextInt(100 / 6) + 1;
 
 		}
@@ -225,4 +246,14 @@ public class MCSimWorkerStat extends Thread {
 		return coin.nextInt(100) % 2 == 0;
 	}
 
+	private class StopTimer extends TimerTask {
+		
+		@Override
+		public void run() {
+			timeDone = true;
+			
+		} 
+		
+	}
+	
 }
