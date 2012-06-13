@@ -66,9 +66,9 @@ public class Group3PlayerMonteCarlo implements Player {
 
 		int max;
 		if (money < 95) {
-			max = (money / 5) + 4;
+			max = (money / 10) + 4;//could go back to 1/5
 		} else {
-			max = 25;
+			max = 14;//could go back to 25
 		}
 		
 

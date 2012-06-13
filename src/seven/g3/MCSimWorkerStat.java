@@ -162,10 +162,10 @@ public class MCSimWorkerStat extends Thread {
 
 			
 			if(money < 95) {
-				bet = ran.nextInt(money / 5) + 4;//1/5 + 3 to back off a little and make it min at 3
-			} else {
-				bet = ran.nextInt(22) + 4;// dont want to bid crazy high even if we have over 100. this was an isseu before we were betting like 50 when we had 200 and blowing tons of money 				
-			}
+				bet = ran.nextInt(money / 10) + 4;//1/5 + 3 to back off a little and make it min at 3
+			} else {							  //could go back to /5	
+				bet = ran.nextInt(10) + 4;// dont want to bid crazy high even if we have over 100. this was an isseu before we were betting like 50 when we had 200 and blowing tons of money 				
+			}							  //could go back to 21 	
 			
 			/*//put back for normallized stats
 			for(int i = 0; i < numPlayers; i ++) {
