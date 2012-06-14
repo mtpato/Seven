@@ -24,6 +24,9 @@ public class Group3PlayerMonteCarlo implements Player {
 	private final Logger log = Logger.getLogger(this.getClass());
 	private List<Word> wordList = new ArrayList<Word>();
 	private Set<CharBag> makeSeven = new HashSet<CharBag>();
+	
+	private List<Word> testList = new ArrayList<Word>();
+	private boolean foundSeven = false;
 
 	
 	{
@@ -38,8 +41,12 @@ public class Group3PlayerMonteCarlo implements Player {
 
 				wordList.add(new Word(line));
 				
-				if (line.length() == 7)
+				if (line.length() == 7) {
+					testList.add(new Word(line));
 					makeSeven.add(new CharBag(line));
+				}
+					//makeSeven.add(new CharBag(line));
+				
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -66,7 +73,11 @@ public class Group3PlayerMonteCarlo implements Player {
 
 		int max;
 		if (money < 95) {
-			max = (money / 10) + 4;//could go back to 1/5
+			if(money / 10 == 0) {
+				max = 4;
+			} else {
+				max = money / 10 + 4;//1/5 + 3 to back off a little and make it min at 3
+			}
 		} else {
 			max = 14;//could go back to 25
 		}
@@ -192,8 +203,12 @@ public class Group3PlayerMonteCarlo implements Player {
 		List<Letter> list = LetterGame.getRemainingLetters();
 		List<Character> gameLetters = new ArrayList<Character>();
 		
-		if (myLetters.size() >= 12)
+		if(foundSeven) {
 			return 1;
+		}
+		
+		/*if (myLetters.size() >= 12)
+			return 1;*/
 
 		playerScore = secretstate.getScore();
 
@@ -203,6 +218,20 @@ public class Group3PlayerMonteCarlo implements Player {
 		int bid = monteCarlo(myLetters, gameLetters, bidLetter.getCharacter());
 	
 		return bid;
+	}
+
+	private boolean haveSeven() {
+		/*String myLetters = "";
+		for(Character c : myLets) {
+			myLetters = myLetters + c.charValue();
+		}
+		
+		
+		log.trace("MY LETTERS RIGHT NOW: " + myLetters);
+		CharBag c = new CharBag(myLetters);*/
+		if(getWordTest().length() == 7) return true;
+
+		return false;
 	}
 
 	@Override
@@ -229,6 +258,30 @@ public class Group3PlayerMonteCarlo implements Player {
 		
 		if (won)
 			myLetters.add(letter.getCharacter());
+		
+		if (haveSeven()) foundSeven = true;// 7 word?
+	}
+	
+	public String getWordTest() {
+		char c[] = new char[myLetters.size()];
+		for (int i = 0; i < c.length; i++) {
+			c[i] = myLetters.get(i);
+		}
+		String s = new String(c);
+		Word ourletters = new Word(s);
+		Word bestword = new Word("");
+		for (Word w : testList) {
+			if (ourletters.contains(w)) {
+				if (w.score > bestword.score) {
+					bestword = w;
+				}
+
+			}
+		}
+
+		log.trace("My ID is me and my word is " + bestword.word);
+
+		return bestword.word;
 	}
 
 	@Override
@@ -256,6 +309,7 @@ public class Group3PlayerMonteCarlo implements Player {
 
 	@Override
 	public void updateScores(ArrayList<Integer> scores) {
+		foundSeven = false;
 		for(BidHist b: bidHists) {
 			b.setMoney(scores.get(b.getpIndex()));
 		}
